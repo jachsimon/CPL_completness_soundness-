@@ -1,5 +1,4 @@
 import data.list.basic
-import data.list
 import data.bool
 import data.nat.basic
 import init.meta.tactic
@@ -9,110 +8,12 @@ open list
 open nat
 
 -- TACTIC UNITS 
-   
-
 
   variables {α β γ  : Type}
-
-
 
   meta def tac : tactic unit :=
          `[ { repeat {{left, exact rfl}  <|> right <|> exact rfl}} <|>             
             solve1 { repeat {{left, assumption}  <|> right <|> assumption}}]
-
-/-
-  meta def ax_or_assump : tactic unit :=
-           `[ {left, refine (exintro2 _ _ rfl)} <|>
-              {right, left, refine (exintro3 _ _ _ rfl) } <|>
-              {right, right, left, refine (exintro2 _ _ rfl) } <|> 
-              {right, right, right, left, tac}  ]
-  meta def mp : tactic unit :=
-        `[ repeat {right}, refine (exists.intro _ ⟨ by tac, by tac⟩) ]
-  meta def proof : tactic unit :=
-           `[ {tac} <|> 
-
-           {mp} <|>
-
-           {right,{{left, refine (exintro2 _ _ rfl)} <|>
-           {right,left, refine (exintro3 _ _ _ rfl) } <|>
-           {right,right, left, refine (exintro2 _ _ rfl) } <|> 
-           {right,right, right, left, tac }}} <|>               
-           
-           {left, exact (exintro2 _ _ rfl)} <|>
-           {right,left, refine (exintro3 _ _ _ rfl) } <|>
-           {right,right, left, refine (exintro2 _ _ rfl) } <|> 
-           {right,right, right, left, tac}  ]  
-  .
-  
-  
-  
-  meta def  tac1 : tactic unit :=
-   `[ repeat   { assumption <|> 
-            {left, {repeat {assumption <|> {left, assumption}  <|> right}}} <|> 
-            right } ]
-
-   --assump pro hledání mezi předpoklady
-  meta def  assump : tactic unit :=
-   `[ { repeat {{left, { repeat{{left,  exact rfl}  <|> right <|> exact rfl }} } 
-   <|> right <|> exact rfl}}  <|>   {tac1}]         
-
-   -- hledá jesli je něco axiom, či přepoklad
-  meta def  proof1 : tactic unit :=
-               `[
-               { left, refine (exintro2 _ _ rfl)}  <|>  --pro 3 axiomy z definice in_proof
-               {right,left, refine (exintro3 _ _ _ rfl) } <|>
-               {right,right, left, refine (exintro2 _ _ rfl) } <|> 
-               {right,right, right, left, assump }  --pro přepoklad z definice in_proof
-                  <|>
-                -- to samé pro důkaz s řezem (in_proof_with_cut)
-                {right, {{left, refine (exintro2 _ _ rfl)} <|>
-                {right,left, refine (exintro3 _ _ _ rfl) } <|>
-                {right,right, left, refine (exintro2 _ _ rfl) } <|> 
-                {right,right, right, left, assump }}}]
-
-                   --odvození s MP
-  meta def  MP : tactic unit :=
-   `[ {repeat {right}, existsi _ , split, tactic.swap,  assump, assump} ]
-   
-    --seznam dokázaných binárních pravidel
-  meta def  bin_rules_list : tactic unit :=
-            `[  {refine (@trans _ _ _), repeat {assump}}    <|>  
-                { refine (@RAA _ _), repeat {assump} }      <|> 
-                {assumption} 
-            ]
-
-            -- odvození pomocí dokázaných pravidel
-  meta def  rules : tactic unit :=
-            `[ 
-            --binary rules (verze 1)
-            {left, left, existsi _, existsi _, split, tactic.swap, split,  
-             assump, bin_rules_list, assump}  <|> 
-            --binary rulas (verze 2) (pro binární pravidla je pro Lean těžké doplnit správně předpoklady)
-            {left, left, existsi _, existsi _, split, tactic.swap, split, 
-             tactic.swap, bin_rules_list, repeat {assump}}  <|>
-            --unary rules
-            {left,right, left, existsi _,  split, tactic.swap,
-              { {assumption}  <|>    
-                {exact contraposition}  <|>
-                {exact contraposition2}  <|>
-                {exact double_neg  <|>
-                {exact double_neg_law}}}
-              ,assump}  <|>    
-                 
-            -- theorems (žádný konkrétní teorém zatím není dokázaný)
-            {left,right, right, assumption} 
-             ]
-      
-  --souhrnná taktika
-  meta def  collection : tactic unit :=
-            `[{MP} <|> {rules} <|> {assump} <|> {proof}]
-
-
-  --finální taktika pro ověření Hilbertovského důkazu
-  meta def  HK_verifier : tactic unit :=
-            `[repeat {split, collection}, assump]
--/
-
 
  meta def mt_ax : tactic unit := 
   `[ solve1 {repeat{ {left, refine (exintro2 _ _ rfl)}   <|>
