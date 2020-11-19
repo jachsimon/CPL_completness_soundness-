@@ -311,7 +311,6 @@ open nat
 
       intros D li IH hp, split,
       cases hp.1,
-      --repeat{{left, exact h} <|> right, try{cases h}},   
       left, exact h, 
       cases h, right, left, exact h,
       cases h, right, right, left, exact h, 
@@ -359,40 +358,23 @@ open nat
     apply exists.elim a_1, intros a_2 a_3, 
     existsi a_2, exact monotony_help a a_3
     end
- /- MONOTONY, 2. way
-
-  theorem monotony : Γ ⊆ Δ  →  Γ ⊢ A  →  Δ ⊢ A :=   
-    λ sub, have lem: ∀ l, is_proof Γ l → is_proof Δ l, from
-      λ l, list.rec_on l
-      (λ hp, rfl)
-      (λ B lis IH hp, ⟨begin cases hp.1,
-                       proof, cases h, proof, cases h, proof, cases h, 
-                       have hpp: B ∈ Δ, from sub h, repeat {proof} end, 
-                       IH hp.2 ⟩ ),
-    λ pr, exists.elim pr (λ li hp, ⟨li, lem (A::li) hp⟩)
- -/
+ 
   lemma provable_no_cutR : Γ ⊢cut A → Γ ⊢ A := 
     begin 
       have lem : ∀ l A, (is_proof_with_cut Γ l) → (A ∈ l) → (Γ ⊢ A),
-      intro l, induction l with B lis IH, 
-      --empty list:
+      intro l, induction l with B lis IH,
       intros A a a_1, exact absurd rfl (list.ne_nil_of_mem a_1), 
-      --list indukce
       intros E hp ha, cases ha, rw[ha], cases hp.1, 
-      --binární
       apply exelim2 h, intros C D a,  
       have HC: Γ ⊢ C, from IH C hp.2 a.1 ,
       have HD: Γ ⊢ D, from IH D hp.2 a.2.1,
         exact binary_cut HC HD a.2.2, 
-      --unární
       cases h, apply exists.elim h, intros C hC,  
       have HC: Γ ⊢ C, from IH C hp.2 hC.1 ,       
         exact unary_cut HC hC.2, 
-      --nulární
       cases h, 
       have hyp: ∅ ⊆ Γ, from λ A hp, false.elim hp, 
         exact monotony hyp h,
-      --norm proof
       cases h, apply exelim2 h, intros C D h_1,  
       rw[h_1], let prf:=[], focus{mt_verifier}, 
       cases h, apply exelim3 h, intros C D E h_1,  
@@ -405,7 +387,6 @@ open nat
       have Ha: Γ ⊢ G, exact  IH G hp.2 (hG.1),
       have Hb: Γ ⊢ G ⇒ B, exact  IH (G ⇒ B) hp.2 (hG.2),
       exact binary_cut Ha Hb modus_ponens_rule,
-      --indukční krok
       exact IH E hp.2 ha,
       intros a, cases a with l hpp, have h: A∈ A::l, from by simp,
       exact lem (A::l) A hpp h  
@@ -428,13 +409,9 @@ open nat
                              (Γ ⊢ A ⇒ B), from
    begin
     intro l, induction l with C li IH, 
-    --prázdný list
     intros _ a a_1, exact absurd rfl (list.ne_nil_of_mem a_1),
-    --indukční krok
     intros h B hp, cases hp,
-    --B=C
     rw[hp],                          
-    --když je C axiom
     cases h.1, 
     apply exelim2 h_1, intros _ _ ax, rw[ax],   
     focus{existsi ([_, A1 _ A]), mt_verifier}, cases h_1,
@@ -442,15 +419,12 @@ open nat
     focus{existsi ([_, A1 _ A]), mt_verifier}, cases h_1, 
     apply exelim2 h_1, intros _ _ ax, rw[ax],   
     focus{existsi ([_, A1 _ A]), mt_verifier}, cases h_1, 
-    --když C ∈ Γ ∪ {A}
     cases h_1, focus{let prf:= [C, A1 C A], mt_verifier},     
     cases h_1, exact provable1, 
-    --modus ponens
     cases h_1 with B hB, 
      have Hd: Γ ⊢ A ⇒ B, exact IH h.2 B hB.1, 
      have Himp: Γ ⊢ A ⇒ B ⇒ C, exact IH h.2 (B ⇒ C) hB.2,
     exact (binary_cut Hd Himp exchange),
-    --Indukční krok
     exact IH h.2 B hp  
    end,       
    assume h, exists.elim h (λ list hyp, 
@@ -522,17 +496,14 @@ open nat
                          
   lemma provable5 : {A ⇒ B, ~A ⇒ B} ⊢ B:= 
     let prf:= [                  
-                        (~B ⇒ ~A ) ⇒ B, -- MP
-                        (~B ⇒ ~~A) ⇒ (~B ⇒ ~A) ⇒ B, -- RAA {A ⇒ B, A ⇒ ~B} ⊢ ~A             
-                        ~B ⇒ ~~A, -- {~A ⇒ B} ⊢ (~B ⇒ ~~A)
-                        ~A ⇒ B, --assump
-                        ~B ⇒ ~A, -- {A ⇒ B} ⊢ (~B ⇒ ~A)
-                        A ⇒ B --assump
+                        (~B ⇒ ~A ) ⇒ B, 
+                        (~B ⇒ ~~A) ⇒ (~B ⇒ ~A) ⇒ B,            
+                        ~B ⇒ ~~A, 
+                        ~A ⇒ B, 
+                        ~B ⇒ ~A, 
+                        A ⇒ B 
                     ] in
     by{mt_verifier}
-
- 
- 
 
   theorem PCP : (Γ ∪ {A} ⊢ B) → (Γ ∪ {~A} ⊢ B) → (Γ ⊢ B) := 
     assume h hneg, 
