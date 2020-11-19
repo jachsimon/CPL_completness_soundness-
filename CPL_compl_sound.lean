@@ -1,3 +1,9 @@
+/-
+Authors: Jáchym Šimon, Tomáš Lávička
+Czech technical university, Prague
+Created: 2019
+written in Lean 3.23.0 using mathlib library
+-/
 import data.list.basic
 import data.bool
 import data.nat.basic
@@ -73,7 +79,6 @@ open nat
                  swap},
     try{exact rfl}]
 
---
 
 -- EXISTS INTRO ELIM RULES
 
@@ -97,7 +102,7 @@ open nat
   (λ A hex1, exists.elim hex1 
   (λ B hex3, exists.elim hex3 
   (λ C hP, hall A B C hP)))
---
+
 
 -- FORM (inducive)
 
@@ -110,7 +115,7 @@ open nat
   local infixr ⇒ : 80 := Form.imp
   local prefix `~` : 100 := Form.neg
   open Form
---
+
 
 -- GLOBAL_VARIABLES
 
@@ -124,14 +129,13 @@ open nat
   variables {a b:bool}
   variables {l li:list Form}
 
---
 
 -- HK AXIOMS
   -- axioms of hilbert calculus
   def A1 (A B:Form) := A ⇒ (B ⇒ A)
   def A2 (A B C:Form) := (A ⇒ (B ⇒ C)) ⇒ ((A ⇒ B) ⇒ (A ⇒ C))
-  def A3 (A B:Form) := (~B ⇒ ~A) ⇒ ((~B ⇒ A) ⇒ B)
--- 
+  def A3 (A B:Form) := (~B ⇒ ~A) ⇒ ((~B ⇒ A) ⇒ B) 
+
 
 -- PROOF
   -- formula in proof is either axiom, assumption or comes from modus ponens
@@ -167,7 +171,7 @@ open nat
 
   infixr ` ⊢cut ` : 40 := is_provable_with_cut
   prefix ` ⊢cut ` : 40 := is_provable {}
---   
+   
 
 -- PROOF lemmas
   -- useful lemmas about proof definitions
@@ -198,11 +202,9 @@ open nat
     or.elim (lem hp)                    
       (assume H, H.symm ▸ in_proof_extend h.1 sub)         
       (λ H, in_proof_extend  (IH (is_proof_ind h) H) sub))
- --
 
---
 
---SEMANTICS   
+-- SEMANTICS   
 
   -- definition of evaluation
   def val (v:eval) : Form → bool :=
@@ -216,7 +218,7 @@ open nat
   def is_taut (A:Form) : Prop := ∀ v:eval, v∗ A = tt
   
   notation `⊧` := is_taut
---
+
 
 -- SOUNDNESS 
   -- axioms are tautologies
@@ -279,8 +281,7 @@ open nat
       apply exists.elim a_1, intros a_2 a_3, 
       exact soundness_lemma a ⟨a_3, by simp⟩ 
     end
-
--- 
+ 
 
 -- PROVABLE lemmas
   -- monotony, cut rules, other rules
@@ -590,7 +591,7 @@ open nat
 
   lemma provable4 : (Γ ⊢ A) → (Γ ⊢ ~B) → (Γ ⊢ ~(A ⇒ B)):= 
     by{intros a b, exact binary_cut a b provable4_hlp}
---
+
 
 -- COMPLETENESS preparation
  
@@ -767,8 +768,6 @@ open nat
       nat.rec_on n (λ h, h) (assume n IH hp, IH (PCP_app n hp)), 
     (@flae_empty (λ n:ℕ, tt)) ▸ (H h) (λ n:ℕ, tt)
 
- --
---
 
 -- COMPLETENESS
 
@@ -832,6 +831,4 @@ open nat
       (λ v:eval, @eq.subst Form 
       (λ B:Form, is_provable (svar_set (form_index A) v) B) 
       (swap A v) A (swap_tt (h v)) (main_lemma v)),
-    nprov_theorem H
-    
--- 
+    nprov_theorem H 
